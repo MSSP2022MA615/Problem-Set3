@@ -1,0 +1,138 @@
+---
+title: "Problem Set 3"
+author: "Hao He"
+date: "2022-09-27"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(magrittr)
+# used knitr::purl("MA615 ProblemSet 3.Rmd") to convert this r markdown to r script
+```
+
+Use the Iris built-in data.
+1. Put all rows of Species ‘versicolor’ in a new data frame. Call this data frame: ‘iris.vers’
+```{r}
+head(iris,3)
+iris.vers <- subset(iris, Species == "versicolor")
+iris.vers
+```
+2. Put a vector called ‘sepal.dif’ with the difference between ‘Sepal.Length’ and ‘Sepal.Width’ of ‘versicolor’ plants.
+```{r}
+sepal.dif <- iris.vers$Sepal.Length - iris.vers$Sepal.Width
+sepal.dif 
+```
+
+3. Update (add) ‘iris.vers’ with the new column ‘sepal.dif’.
+```{r}
+iris.vers<- mutate(iris.vers, sepal.dif)
+```
+
+Use the mtcars built-in data.
+4. Using the apply family of functionals, check the class of each variable in ‘mtcars’.
+
+```{r}
+sapply(mtcars, FUN = class)
+```
+5. Change ‘am’, ‘cyl’ and ‘vs’ to integer and store the new dataset as ‘newmtc’.
+```{r}
+newmtc <- mtcars %>% mutate(am = as.integer(am), 
+                  cyl = as.integer(cyl),
+                  vs = as.integer(vs))
+
+newmtc
+sapply(newmtc, FUN = class)
+```
+
+6. Round the ‘newmtc’ data frame to one digit.
+```{r}
+newmtc <- newmtc %>% mutate_if(is.numeric,round,1)
+```
+
+
+Use the Iris built-in data.
+7. Use dplyr to filter the Iris data frame for all data of Species ‘virginica’ with a ‘Sepal.Width’ of greater than 3.5.
+
+```{r}
+iris %>% filter(Species == "virginica" & Sepal.Width > 3.5)
+```
+8. How would you use R Base to get a data frame of all data of Species ‘virginica’ with a ‘Sepal.Width’ of greater than 3.5, but without the last column Species in the data frame?
+```{r}
+iris[iris$Species == "virginica" & iris$Sepal.Width > 3.5, 1:4]
+```
+
+9. Get the row IDs of the rows matching the two filtering criteria provided above.
+Expected result: "110" "118" "132"
+```{r}
+row.names(iris[iris$Species == "virginica" & iris$Sepal.Width > 3.5, 1:4])
+
+```
+
+Use the Diamonds built-in data.
+10. How many observations of diamonds have a cut of ‘ideal’ and have less than 0.21 carat?
+```{r}
+sum(diamonds$cut == "Ideal" & diamonds$carat < 0.21)
+```
+11. How many observations of diamonds have a combined ‘x’ + ‘y’ + ‘z’ dimension greater than 40?
+```{r}
+
+sum((diamonds$x+diamonds$y+diamonds$z)>40)
+## alternative solution
+hw_ans_11 <- diamonds %>% count((x + y + z) > 40) 
+hw_ans_11 <- unlist(hw_ans_11[2,2])
+h <- unname(hw_ans_11)
+
+#ans_11 <- hw_ans_11
+```
+
+12. How many observations of diamonds have either a price above 10,000 USD or a depth of at least 70?
+```{r}
+sum(price>10,000 | depth >= 70)
+```
+
+13. Get a data frame with observations ’67’ and ‘982’ of variables color and y.
+```{r}
+diamonds[c(67,982), c("color","y")]
+```
+
+14. Get a data frame with the full info on observations ‘453’, ‘792’ and ‘10489’.
+```{r}
+diamonds[c(453,792,10489),]
+```
+
+15. Get the first 10 rows of the dataset ‘diamonds’ with the variables ‘x’, ‘y’, ‘z’.
+```{r}
+diamonds[1:10, c("x","y","z")]
+# or 
+diamonds[1:10, c(8,9,10)]
+```
+
+16. Create the object ‘newdiam’ which is a subset of the first 1000 rows of ‘diamonds’.
+```{r}
+newdiam <- diamonds[1:1000,] 
+```
+
+17. Order ‘newdiam’ according to price, starting with the lowest.
+```{r}
+arrange(newdiam, price)
+```
+
+18. Use ‘dplyr’, ‘sample_n’ to get the object ‘diam750’ which contains 750 randomly sampled observations of ‘diamonds’. I use seed nr. 56 for reproduction.
+```{r}
+set.seed(56)
+diam750 <- sample_n(diamonds,750)
+```
+
+19. Get a summary of the new data frame.
+```{r}
+summary(diam750)
+```
+
+20. Using ‘diam750’ plot a scatter plot of price vs depth, using R Base plot and ggplot2.
+```{r}
+plot(depth ~ price, data = diam750, xlab = "price", ylab = "depth", main = "Diam750 plot version")
+ggplot(data = diam750, aes(x = price, y = depth)) + geom_point() + labs(x = "Price", y = "Depth", title = "Diam750 ggplot2 version")
+```
+
